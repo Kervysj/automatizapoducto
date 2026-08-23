@@ -11,15 +11,16 @@
         h1 { text-align: center; margin-bottom: 20px; color: #1877f2; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="file"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        textarea { resize: vertical; height: 90px; }
+        input[type="text"], input[type="file"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        textarea { resize: vertical; height: 80px; }
         button { background-color: #1877f2; color: white; border: none; padding: 10px 15px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #145dbf; }
         .preview-container { text-align: center; margin-bottom: 15px; }
-        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 4px; display: none; border: 1px solid #ddd; margin-top: 5px; }
+        .preview-container img { max-width: 100%; max-height: 180px; border-radius: 4px; display: none; border: 1px solid #ddd; margin-top: 5px; }
         .output-box { margin-top: 10px; background: #e9ecef; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 13px; border: 1px solid #ced4da; }
         .btn-copy { background-color: #28a745; }
         .btn-copy:hover { background-color: #218838; }
+        .hint { font-size: 12px; color: #666; margin-top: 3px; display: block; }
     </style>
 </head>
 <body>
@@ -27,6 +28,15 @@
 <div class="container">
     <h1>🚀 Generador de Posts - IMC</h1>
     
+    <div class="form-group">
+        <label for="tipoPost">Tipo de Publicación:</label>
+        <select id="tipoPost">
+            <option value="🔥 ¡DISPONIBLE EN IMC! 🔥">🔥 Producto Disponible / Novedad</option>
+            <option value="⚡ ¡OFERTA RELÁMPAGO EN IMC! ⚡">⚡ Oferta Relámpago</option>
+            <option value="🚨 ¡ÚLTIMAS UNIDADES EN IMC! 🚨">🚨 Últimas Unidades</option>
+        </select>
+    </div>
+
     <div class="form-group">
         <label for="imagenProducto">Sube la foto del producto:</label>
         <input type="file" id="imagenProducto" accept="image/*" onchange="mostrarImagen(event)">
@@ -47,15 +57,21 @@
     </div>
 
     <div class="form-group">
-        <label for="detallesProducto">Detalles cortos:</label>
+        <label for="detallesProducto">Detalles cortos / Medidas:</label>
         <textarea id="detallesProducto" placeholder="Ej: Disponibles al detal. Entregas personales en El Tigrito y El Tigre."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="ideasIA">💡 Pegar notas o ideas de la IA:</label>
+        <textarea id="ideasIA" placeholder="Pega aquí el texto descriptivo o gancho que generaste con alguna IA..."></textarea>
+        <span class="hint">Se sumará al mensaje principal de forma automática.</span>
     </div>
 
     <button onclick="generarTexto()">Generar Publicación</button>
 
     <div class="form-group" style="margin-top: 20px;">
         <label>Texto listo para copiar:</label>
-        <div id="resultado" class="output-box">Sube tu foto y llena los datos para generar tu post...</div>
+        <div id="resultado" class="output-box">Llena los datos para generar tu post...</div>
         <button class="btn-copy" onclick="copiarTexto()">📋 Copiar Texto al Portapapeles</button>
     </div>
 </div>
@@ -75,9 +91,11 @@
     }
 
     function generarTexto() {
+        const tipoCabecera = document.getElementById('tipoPost').value;
         const nombre = document.getElementById('nombreProducto').value.trim() || "Producto disponible";
         const precio = document.getElementById('precioProducto').value.trim() || "20";
-        const detalles = document.getElementById('detallesProducto').value.trim() || "Venta al detal. ¡Pide el tuyo!";
+        const detalles = document.getElementById('detallesProducto').value.trim();
+        const notasIA = document.getElementById('ideasIA').value.trim();
         
         // Tus enlaces oficiales de IMC
         const linkWhatsApp = "https://wa.me/584149956831";
@@ -85,12 +103,24 @@
         const linkGrupoFB = "https://www.facebook.com/groups/imconline";
         const linkInstagram = "https://www.instagram.com/imc_oficial2.0/";
 
-        const textoFinal = `🔥 ¡DISPONIBLE EN IMC! 🔥
+        // Armar el bloque de descripción combinando detalles y notas de IA
+        let bloqueDescripcion = "";
+        if (notasIA) {
+            bloqueDescripcion += `📝 ${notasIA}\n\n`;
+        }
+        if (detalles) {
+            bloqueDescripcion += `📌 Detalles: ${detalles}`;
+        }
+        if (!notasIA && !detalles) {
+            bloqueDescripcion = `📝 Venta al detal. ¡Pide el tuyo!`;
+        }
+
+        const textoFinal = `${tipoCabecera}
 
 ✨ *${nombre}*
 💰 Precio: *$${precio}* (Venta al detal)
 
-📝 ${detalles}
+${bloqueDescripcion}
 
 📲 Escríbenos directo al WhatsApp para encargos:
 ${linkWhatsApp}
