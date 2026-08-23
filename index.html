@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Publicaciones - BridigiStore</title>
+    <title>Generador de Publicaciones - IMC</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #333; padding: 20px; }
@@ -25,7 +25,7 @@
 <body>
 
 <div class="container">
-    <h1>🚀 Generador de Posts</h1>
+    <h1>🚀 Generador de Posts - IMC</h1>
     
     <div class="form-group">
         <label for="imagenProducto">Sube la foto del producto:</label>
@@ -38,7 +38,7 @@
 
     <div class="form-group">
         <label for="nombreProducto">Nombre del Producto:</label>
-        <input type="text" id="nombreProducto" placeholder="Ej: Reloj estilo CasioOak / Calzado deportivo">
+        <input type="text" id="nombreProducto" placeholder="Ej: Bolso escolar / Reloj Casio">
     </div>
 
     <div class="form-group">
@@ -79,10 +79,13 @@
         const precio = document.getElementById('precioProducto').value.trim() || "20";
         const detalles = document.getElementById('detallesProducto').value.trim() || "Venta al detal. ¡Pide el tuyo!";
         
+        // Tus enlaces oficiales de IMC
         const linkWhatsApp = "https://wa.me/584149956831";
-        const linkGrupo = "https://www.facebook.com/groups/bridigistore";
+        const linkPaginaFB = "https://www.facebook.com/ImcONLY/";
+        const linkGrupoFB = "https://www.facebook.com/groups/imconline";
+        const linkInstagram = "https://www.instagram.com/imc_oficial2.0/";
 
-        const textoFinal = `🔥 ¡DISPONIBLE EN BRIDIGISTORE! 🔥
+        const textoFinal = `🔥 ¡DISPONIBLE EN IMC! 🔥
 
 ✨ *${nombre}*
 💰 Precio: *$${precio}* (Venta al detal)
@@ -92,10 +95,16 @@
 📲 Escríbenos directo al WhatsApp para encargos:
 ${linkWhatsApp}
 
-🎁 ¡Únete a nuestro grupo privado exclusivo para ver más ofertas, catálogos y novedades:
-${linkGrupo}
+🌐 Síguenos en nuestra página:
+${linkPaginaFB}
 
-#BridigiStore #ElTigrito #ElTigre #Ventas #Anzoategui`;
+🎁 ¡Únete a nuestro grupo privado exclusivo para ver más ofertas y novedades:
+${linkGrupoFB}
+
+📸 Instagram:
+${linkInstagram}
+
+#IMC #ElTigrito #ElTigre #Ventas #Anzoategui`;
 
         document.getElementById('resultado').innerText = textoFinal;
     }
