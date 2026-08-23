@@ -29,11 +29,11 @@
     <h1>🚀 Generador de Posts - IMC</h1>
     
     <div class="form-group">
-        <label for="tipoPost">Tipo de Publicación:</label>
+        <label for="tipoPost">Tipo de Anuncio:</label>
         <select id="tipoPost">
-            <option value="🔥 ¡DISPONIBLE EN IMC! 🔥">🔥 Producto Disponible / Novedad</option>
-            <option value="⚡ ¡OFERTA RELÁMPAGO EN IMC! ⚡">⚡ Oferta Relámpago</option>
-            <option value="🚨 ¡ÚLTIMAS UNIDADES EN IMC! 🚨">🚨 Últimas Unidades</option>
+            <option value="disponible">🔥 Nuevo Ingreso / Disponible</option>
+            <option value="oferta">⚡ Oferta Relámpago (¡Precio Especial!)</option>
+            <option value="ultimas">🚨 ¡Últimas Unidades Disponibles!</option>
         </select>
     </div>
 
@@ -63,8 +63,8 @@
 
     <div class="form-group">
         <label for="ideasIA">💡 Pegar notas o ideas de la IA:</label>
-        <textarea id="ideasIA" placeholder="Pega aquí el texto descriptivo o gancho que generaste con alguna IA..."></textarea>
-        <span class="hint">Se sumará al mensaje principal de forma automática.</span>
+        <textarea id="ideasIA" placeholder="Pega aquí el texto descriptivo o gancho que generaste..."></textarea>
+        <span class="hint">Se integrará automáticamente en el cuerpo del anuncio.</span>
     </div>
 
     <button onclick="generarTexto()">Generar Publicación</button>
@@ -91,7 +91,7 @@
     }
 
     function generarTexto() {
-        const tipoCabecera = document.getElementById('tipoPost').value;
+        const tipoAnuncio = document.getElementById('tipoPost').value;
         const nombre = document.getElementById('nombreProducto').value.trim() || "Producto disponible";
         const precio = document.getElementById('precioProducto').value.trim() || "20";
         const detalles = document.getElementById('detallesProducto').value.trim();
@@ -103,7 +103,17 @@
         const linkGrupoFB = "https://www.facebook.com/groups/imconline";
         const linkInstagram = "https://www.instagram.com/imc_oficial2.0/";
 
-        // Armar el bloque de descripción combinando detalles y notas de IA
+        // Definir el encabezado según lo que el usuario seleccionó en el menú
+        let cabecera = "";
+        if (tipoAnuncio === "oferta") {
+            cabecera = "⚡ ¡OFERTA RELÁMPAGO EN IMC! ⚡\n¡Aprovecha este precio por tiempo limitado!";
+        } else if (tipoAnuncio === "ultimas") {
+            cabecera = "🚨 ¡ATENCIÓN: ÚLTIMAS UNIDADES EN IMC! 🚨\n¡No te quedes sin el tuyo!";
+        } else {
+            cabecera = "🔥 ¡NUEVO INGRESO DISPONIBLE EN IMC! 🔥";
+        }
+
+        // Armar el bloque de descripción combinando notas y detalles
         let bloqueDescripcion = "";
         if (notasIA) {
             bloqueDescripcion += `📝 ${notasIA}\n\n`;
@@ -112,10 +122,10 @@
             bloqueDescripcion += `📌 Detalles: ${detalles}`;
         }
         if (!notasIA && !detalles) {
-            bloqueDescripcion = `📝 Venta al detal. ¡Pide el tuyo!`;
+            bloqueDescripcion = `📝 Venta al detal. ¡Pide el tuyo antes de que se agoten!`;
         }
 
-        const textoFinal = `${tipoCabecera}
+        const textoFinal = `${cabecera}
 
 ✨ *${nombre}*
 💰 Precio: *$${precio}* (Venta al detal)
