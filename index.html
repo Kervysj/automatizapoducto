@@ -8,15 +8,17 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #333; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        hh1 { text-align: center; margin-bottom: 20px; color: #1877f2; }
+        h1 { text-align: center; margin-bottom: 20px; color: #1877f2; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        textarea { resize: vertical; height: 100px; }
+        input[type="text"], input[type="file"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        textarea { resize: vertical; height: 90px; }
         button { background-color: #1877f2; color: white; border: none; padding: 10px 15px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #145dbf; }
-        .output-box { margin-top: 20px; background: #e9ecef; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 13px; border: 1px solid #ced4da; }
-        .btn-copy { background-color: #28a745; margin-top: 10px; }
+        .preview-container { text-align: center; margin-bottom: 15px; }
+        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 4px; display: none; border: 1px solid #ddd; margin-top: 5px; }
+        .output-box { margin-top: 10px; background: #e9ecef; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 13px; border: 1px solid #ced4da; }
+        .btn-copy { background-color: #28a745; }
         .btn-copy:hover { background-color: #218838; }
     </style>
 </head>
@@ -25,6 +27,15 @@
 <div class="container">
     <h1>🚀 Generador de Posts</h1>
     
+    <div class="form-group">
+        <label for="imagenProducto">Sube la foto del producto:</label>
+        <input type="file" id="imagenProducto" accept="image/*" onchange="mostrarImagen(event)">
+    </div>
+
+    <div class="preview-container">
+        <img id="vistaPrevia" alt="Vista previa de la imagen">
+    </div>
+
     <div class="form-group">
         <label for="nombreProducto">Nombre del Producto:</label>
         <input type="text" id="nombreProducto" placeholder="Ej: Reloj estilo CasioOak / Calzado deportivo">
@@ -44,20 +55,32 @@
 
     <div class="form-group" style="margin-top: 20px;">
         <label>Texto listo para copiar:</label>
-        <div id="resultado" class="output-box">Aquí aparecerá tu texto publicitario generado automáticamente...</div>
+        <div id="resultado" class="output-box">Sube tu foto y llena los datos para generar tu post...</div>
         <button class="btn-copy" onclick="copiarTexto()">📋 Copiar Texto al Portapapeles</button>
     </div>
 </div>
 
 <script>
+    function mostrarImagen(event) {
+        const archivo = event.target.files[0];
+        if (archivo) {
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                const vistaPrevia = document.getElementById('vistaPrevia');
+                vistaPrevia.src = e.target.result;
+                vistaPrevia.style.display = 'inline-block';
+            }
+            lector.readAsDataURL(archivo);
+        }
+    }
+
     function generarTexto() {
         const nombre = document.getElementById('nombreProducto').value.trim() || "Producto disponible";
         const precio = document.getElementById('precioProducto').value.trim() || "20";
         const detalles = document.getElementById('detallesProducto').value.trim() || "Venta al detal. ¡Pide el tuyo!";
         
-        // Enlaces predeterminados (puedes ajustarlos cuando gustes)
         const linkWhatsApp = "https://wa.me/584149956831";
-        const linkGrupo = "https://www.facebook.com/groups/bridigistore"; // Reemplaza con tu link de grupo real
+        const linkGrupo = "https://www.facebook.com/groups/bridigistore";
 
         const textoFinal = `🔥 ¡DISPONIBLE EN BRIDIGISTORE! 🔥
 
