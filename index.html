@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Publicaciones - BridigiStore</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        hh1 { text-align: center; margin-bottom: 20px; color: #1877f2; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        textarea { resize: vertical; height: 100px; }
+        button { background-color: #1877f2; color: white; border: none; padding: 10px 15px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #145dbf; }
+        .output-box { margin-top: 20px; background: #e9ecef; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 13px; border: 1px solid #ced4da; }
+        .btn-copy { background-color: #28a745; margin-top: 10px; }
+        .btn-copy:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 Generador de Posts</h1>
+    
+    <div class="form-group">
+        <label for="nombreProducto">Nombre del Producto:</label>
+        <input type="text" id="nombreProducto" placeholder="Ej: Reloj estilo CasioOak / Calzado deportivo">
+    </div>
+
+    <div class="form-group">
+        <label for="precioProducto">Precio ($):</label>
+        <input type="text" id="precioProducto" value="20" placeholder="Ej: 20">
+    </div>
+
+    <div class="form-group">
+        <label for="detallesProducto">Detalles cortos:</label>
+        <textarea id="detallesProducto" placeholder="Ej: Disponibles al detal. Entregas personales en El Tigrito y El Tigre."></textarea>
+    </div>
+
+    <button onclick="generarTexto()">Generar Publicación</button>
+
+    <div class="form-group" style="margin-top: 20px;">
+        <label>Texto listo para copiar:</label>
+        <div id="resultado" class="output-box">Aquí aparecerá tu texto publicitario generado automáticamente...</div>
+        <button class="btn-copy" onclick="copiarTexto()">📋 Copiar Texto al Portapapeles</button>
+    </div>
+</div>
+
+<script>
+    function generarTexto() {
+        const nombre = document.getElementById('nombreProducto').value.trim() || "Producto disponible";
+        const precio = document.getElementById('precioProducto').value.trim() || "20";
+        const detalles = document.getElementById('detallesProducto').value.trim() || "Venta al detal. ¡Pide el tuyo!";
+        
+        // Enlaces predeterminados (puedes ajustarlos cuando gustes)
+        const linkWhatsApp = "https://wa.me/584149956831";
+        const linkGrupo = "https://www.facebook.com/groups/bridigistore"; // Reemplaza con tu link de grupo real
+
+        const textoFinal = `🔥 ¡DISPONIBLE EN BRIDIGISTORE! 🔥
+
+✨ *${nombre}*
+💰 Precio: *$${precio}* (Venta al detal)
+
+📝 ${detalles}
+
+📲 Escríbenos directo al WhatsApp para encargos:
+${linkWhatsApp}
+
+🎁 ¡Únete a nuestro grupo privado exclusivo para ver más ofertas, catálogos y novedades:
+${linkGrupo}
+
+#BridigiStore #ElTigrito #ElTigre #Ventas #Anzoategui`;
+
+        document.getElementById('resultado').innerText = textoFinal;
+    }
+
+    function copiarTexto() {
+        const textoCopia = document.getElementById('resultado').innerText;
+        navigator.clipboard.writeText(textoCopia).then(() => {
+            alert("¡Texto copiado con éxito! Ya puedes pegarlo en Facebook o WhatsApp.");
+        }).catch(err => {
+            alert("Error al copiar el texto.");
+        });
+    }
+</script>
+
+</body>
+</html>
