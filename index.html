@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1560d4">
+<title>Generador de publicaciones - IMC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --tinta: #0f1b33;
+    --suave: #56667f;
+    --fondo: #e9eef6;
+    --papel: #ffffff;
+    --campo: #f5f7fb;
+    --linea: #d3dbe8;
+    --azul: #1560d4;
+    --azul-osc: #0f47a0;
+    --azul-claro: #e3edff;
+    --ok: #0b6b53;
+    --ok-fondo: #dcf5ec;
+    --alerta: #9a3c0b;
+    --alerta-fondo: #fdebd9;
+    --error: #b42318;
+    --sombra: 0 1px 2px rgba(15, 27, 51, .06), 0 8px 24px rgba(15, 27, 51, .06);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --tinta: #e8eefb;
+        --suave: #9fb0cc;
+        --fondo: #0b1424;
+        --papel: #131f36;
+        --campo: #0e1930;
+        --linea: #263655;
+        --azul: #4b8dff;
+        --azul-osc: #7aa9ff;
+        --azul-claro: #1a2d52;
+        --ok: #5fdcb7;
+        --ok-fondo: #10352d;
+        --alerta: #ffb27a;
+        --alerta-fondo: #3a2413;
+        --error: #ff8f85;
+        --sombra: none;
+    }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--tinta);
+    line-height: 1.45;
+    padding-bottom: 24px;
+}
+h1, h2, legend, .logo { font-family: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+
+/* Encabezado */
+.top {
+    max-width: 1100px; margin: 0 auto; padding: 18px 16px 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo {
+    background: var(--azul); color: #fff; font-weight: 800; font-size: 22px;
+    letter-spacing: .5px; padding: 8px 12px; border-radius: 10px; line-height: 1;
+}
+.top h1 { font-size: 20px; font-weight: 700; line-height: 1.15; }
+.sub { font-size: 13px; color: var(--suave); }
+
+/* Paneles */
+.layout {
+    max-width: 1100px; margin: 0 auto; padding: 0 16px;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 18px; align-items: start;
+}
+.panel {
+    background: var(--papel); border-radius: 16px; padding: 20px;
+    box-shadow: var(--sombra); border: 1px solid var(--linea);
+}
+.panel > h2 { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.bloque { border: 0; padding: 0; margin-bottom: 18px; }
+legend, .etq { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; padding: 0; }
+.campo { margin-bottom: 14px; }
+.campo > label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+input[type="text"], select, textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 10px;
+    background: var(--campo); font-size: 15px;
+}
+input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--azul); background: var(--papel); }
+textarea { resize: vertical; min-height: 78px; line-height: 1.45; }
+.hint { font-size: 12.5px; color: var(--suave); margin-top: 4px; display: block; }
+.fila { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; }
+
+/* Tipo de anuncio */
+.chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.chip span {
+    display: block; padding: 10px 12px; border: 1.5px solid var(--linea); border-radius: 10px;
+    background: var(--campo); font-size: 14px; font-weight: 600; text-align: center;
+}
+.chip input:checked + span { border-color: var(--azul); background: var(--azul-claro); color: var(--azul-osc); }
+.chip input:focus-visible + span { outline: 3px solid var(--azul); outline-offset: 2px; }
+
+/* Foto */
+.drop {
+    position: relative; display: block; text-align: center; padding: 18px 12px;
+    border: 2px dashed var(--linea); border-radius: 12px; background: var(--campo); cursor: pointer;
+}
+.drop:hover, .drop.encima { border-color: var(--azul); background: var(--azul-claro); }
+.drop:focus-within { outline: 3px solid var(--azul); outline-offset: 2px; }
+.drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.drop-t { display: block; font-weight: 700; font-size: 15px; }
+.opciones { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 10px; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--azul); }
+.mini { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.mini select { width: auto; padding: 6px 10px; }
+
+/* Botones */
+button { cursor: pointer; }
+.btn {
+    border: 0; border-radius: 10px; padding: 12px 16px; font-weight: 700; font-size: 15px;
+    background: var(--azul); color: #fff; min-height: 46px;
+}
+.btn:hover { background: var(--azul-osc); }
+.btn.sec { background: transparent; color: var(--azul-osc); border: 1.5px solid var(--azul); }
+.btn.sec:hover { background: var(--azul-claro); }
+.ghost {
+    background: transparent; border: 1.5px solid var(--linea); border-radius: 10px;
+    padding: 9px 14px; font-weight: 600; font-size: 14px; white-space: nowrap;
+}
+.ghost:hover { border-color: var(--azul); color: var(--azul-osc); }
+.link {
+    background: none; border: 0; color: var(--azul-osc); font-weight: 600; font-size: 14px;
+    text-decoration: underline; padding: 4px 2px;
+}
+.acciones-ia { margin-top: 8px; }
+
+/* Plegables */
+.plegable { border-top: 1px solid var(--linea); padding-top: 14px; margin-top: 6px; }
+.plegable summary { font-weight: 700; font-size: 15px; cursor: pointer; padding: 4px 0; }
+.plegable[open] summary { margin-bottom: 12px; }
+.lista-hist { list-style: none; display: grid; gap: 6px; }
+.lista-hist li { display: flex; gap: 6px; align-items: stretch; }
+.hist-item {
+    flex: 1; text-align: left; padding: 9px 12px; border: 1px solid var(--linea); border-radius: 10px;
+    background: var(--campo); font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hist-item:hover { border-color: var(--azul); }
+.hist-x { width: 38px; border: 1px solid var(--linea); border-radius: 10px; background: var(--campo); font-size: 16px; }
+.hist-x:hover { border-color: var(--error); color: var(--error); }
+.vacio { color: var(--suave); font-size: 14px; }
+
+/* Vista previa */
+.out { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; }
+.foto-box { border-radius: 12px; overflow: hidden; background: var(--campo); border: 1px solid var(--linea); }
+.foto-box canvas { display: block; max-width: 100%; max-height: 340px; width: auto; height: auto; margin: 0 auto; }
+.foto-vacia { padding: 34px 16px; text-align: center; color: var(--suave); font-size: 14px; }
+.foto-acc { display: flex; gap: 14px; margin: 6px 0 2px; }
+.tabs { display: flex; gap: 6px; margin: 14px 0 10px; }
+.tab {
+    flex: 1; border: 1.5px solid var(--linea); background: var(--campo); border-radius: 10px;
+    padding: 9px 8px; font-weight: 700; font-size: 14px;
+}
+.tab[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
+#resultado { min-height: 300px; font-size: 14.5px; line-height: 1.5; background: var(--campo); }
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 14px; margin-top: 8px; }
+#contador { font-size: 13px; color: var(--suave); }
+#contador.excede { color: var(--error); font-weight: 700; }
+.dirty {
+    margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px;
+    background: var(--alerta-fondo); color: var(--alerta);
+}
+.avisos { list-style: none; margin: 12px 0 0; display: grid; gap: 6px; }
+.avisos li { font-size: 13.5px; padding: 7px 10px; border-radius: 8px; background: var(--alerta-fondo); color: var(--alerta); }
+.avisos li.ok { background: var(--ok-fondo); color: var(--ok); font-weight: 600; }
+.avisos li.tip { background: var(--azul-claro); color: var(--azul-osc); }
+.checks { display: grid; gap: 10px; }
+.ad-campo { margin-bottom: 14px; }
+.ad-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ad-cab label { font-size: 14px; font-weight: 600; }
+.ad-campo .hint.excede { color: var(--error); font-weight: 700; }
+.ad-boton { padding: 10px 12px; border-radius: 10px; background: var(--azul-claro); color: var(--azul-osc); font-size: 14px; margin-bottom: 8px; }
+.pasos { margin: 0 0 0 20px; display: grid; gap: 8px; font-size: 14px; }
+.actions {
+    display: flex; gap: 8px; margin-top: 14px;
+    position: sticky; bottom: 0; background: var(--papel); padding: 12px 0 14px; z-index: 5;
+}
+.actions .btn { flex: 1; }
+.actions .btn:first-child { flex: 1.3; }
+
+/* Aviso flotante */
+.toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px);
+    background: #0f1b33; color: #fff; padding: 12px 18px; border-radius: 12px;
+    font-size: 14.5px; font-weight: 600; max-width: min(92vw, 460px); text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: var(--error); }
+.toast.aviso { background: #9a3c0b; }
+
+/* Celular */
+@media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .out { position: static; max-height: none; overflow: visible; padding-bottom: 90px; }
+    .foto-box canvas { width: 100%; max-height: none; }
+    .actions {
+        position: fixed; left: 0; right: 0; bottom: 0; margin: 0; z-index: 40;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: var(--papel); border-top: 1px solid var(--linea);
+        box-shadow: 0 -6px 20px rgba(15, 27, 51, .12);
+    }
+    .toast { bottom: 96px; }
+}
+@media (max-width: 420px) {
+    .fila { grid-template-columns: 1fr; }
+    .tab { font-size: 13px; padding: 9px 2px; }
+    .top h1 { font-size: 17px; }
+    .sub { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .toast { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+    <div class="marca">
+        <span class="logo" aria-hidden="true">IMC</span>
+        <div>
+            <h1>Generador de publicaciones</h1>
+            <p class="sub">Llena los datos, copia y pega.</p>
+        </div>
+    </div>
+    <button type="button" class="ghost" id="btnNuevo">Nuevo producto</button>
+</header>
+
+<main class="layout">
+
+    <!-- ============ FORMULARIO ============ -->
+    <section class="panel" id="panelForm" aria-labelledby="t-datos">
+        <h2 id="t-datos">Datos del producto</h2>
+
+        <fieldset class="bloque">
+            <legend>Tipo de anuncio</legend>
+            <div class="chips">
+                <label class="chip"><input type="radio" name="tipo" value="disponible" checked><span>🔥 Nuevo ingreso</span></label>
+                <label class="chip"><input type="radio" name="tipo" value="oferta"><span>⚡ Oferta relámpago</span></label>
+                <label class="chip"><input type="radio" name="tipo" value="ultimas"><span>🚨 Últimas unidades</span></label>
+                <label class="chip"><input type="radio" name="tipo" value="reposicion"><span>🔁 Ya hay de nuevo</span></label>
+            </div>
+        </fieldset>
+
+        <div class="bloque">
+            <span class="etq">Foto del producto</span>
+            <label class="drop" id="drop" for="archivo">
+                <input type="file" id="archivo" accept="image/*">
+                <span class="drop-t" id="dropTxt">Toca para elegir una foto</span>
+                <span class="hint">También puedes arrastrarla aquí o pegarla con Ctrl+V.</span>
+            </label>
+            <div class="opciones">
+                <label class="check"><input type="checkbox" id="sello" checked> Poner precio y contacto sobre la foto</label>
+                <label class="mini">Formato
+                    <select id="formato">
+                        <option value="cuadrada">Cuadrada (1:1)</option>
+                        <option value="original">Original</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div class="campo">
+            <label for="nombre">Nombre del producto</label>
+            <input type="text" id="nombre" placeholder="Ej: Bolso escolar, reloj Casio" autocomplete="off">
+        </div>
+
+        <div class="fila">
+            <div class="campo">
+                <label for="moneda">Moneda</label>
+                <select id="moneda">
+                    <option value="$">Dólares ($)</option>
+                    <option value="Bs">Bolívares (Bs)</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label for="precio">Precio</label>
+                <input type="text" id="precio" inputmode="decimal" placeholder="Ej: 20" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="campo" id="campoAnt" hidden>
+            <label for="precioAnt">Precio anterior (para mostrar cuánto se ahorra)</label>
+            <input type="text" id="precioAnt" inputmode="decimal" placeholder="Ej: 30" autocomplete="off">
+        </div>
+
+        <div class="campo" id="campoUnid" hidden>
+            <label for="unidades">Unidades disponibles</label>
+            <input type="text" id="unidades" inputmode="numeric" placeholder="Ej: 3" autocomplete="off">
+        </div>
+
+        <div class="campo">
+            <label for="venta">Tipo de venta</label>
+            <select id="venta">
+                <option>Venta al detal</option>
+                <option>Venta al mayor</option>
+                <option>Venta al detal y al mayor</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="detalles">Detalles cortos o medidas</label>
+            <textarea id="detalles" placeholder="Ej: Talla única, colores surtidos, medidas 30x40 cm."></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="gancho">Frase gancho de la IA (opcional)</label>
+            <textarea id="gancho" placeholder="Pega aquí la frase que te dio la IA. Se agrega al cuerpo del anuncio."></textarea>
+            <div class="acciones-ia">
+                <button type="button" class="link" id="btnPrompt">Copiar instrucción para pedirle la frase a la IA</button>
+            </div>
+        </div>
+
+        <div class="campo">
+            <label for="enlaceProd">Enlace directo al producto en el catálogo (opcional)</label>
+            <input type="text" id="enlaceProd" inputmode="url" placeholder="Pega aquí el enlace del producto" autocomplete="off">
+            <span class="hint">En tu catálogo: Compartir producto, Copiar enlace. Así el cliente cae justo en ese producto.</span>
+        </div>
+
+        <div class="campo">
+            <label for="catalogoModo">Catálogo en el anuncio</label>
+            <select id="catalogoModo">
+                <option value="web">Catálogo web (se guarda en el celular)</option>
+                <option value="wa">Catálogo de WhatsApp</option>
+                <option value="ambos">Los dos</option>
+                <option value="ninguno">Ninguno</option>
+            </select>
+        </div>
+
+        <div class="checks">
+            <label class="check"><input type="checkbox" id="chkEntregas" checked> Incluir la línea de entregas</label>
+            <label class="check"><input type="checkbox" id="chkRedes" checked> Incluir página, grupo e Instagram</label>
+        </div>
+
+        <details class="plegable">
+            <summary>Mis datos y enlaces</summary>
+            <div class="campo"><label for="cfgNegocio">Nombre del negocio</label><input type="text" id="cfgNegocio" autocomplete="off"></div>
+            <div class="campo"><label for="cfgWhatsapp">WhatsApp (con código de país)</label><input type="text" id="cfgWhatsapp" inputmode="numeric" autocomplete="off"><span class="hint">Ejemplo: 584149956831</span></div>
+            <div class="campo"><label for="cfgPagina">Página de Facebook</label><input type="text" id="cfgPagina" autocomplete="off"></div>
+            <div class="campo"><label for="cfgGrupo">Grupo de Facebook</label><input type="text" id="cfgGrupo" autocomplete="off"></div>
+            <div class="campo"><label for="cfgInstagram">Instagram</label><input type="text" id="cfgInstagram" autocomplete="off"></div>
+            <div class="campo"><label for="cfgEntregas">Línea de entregas</label><input type="text" id="cfgEntregas" autocomplete="off"></div>
+            <div class="campo"><label for="cfgCatalogoWeb">Enlace del catálogo web</label><input type="text" id="cfgCatalogoWeb" autocomplete="off"></div>
+            <div class="campo"><label for="cfgCatalogo">Enlace del catálogo de WhatsApp</label><input type="text" id="cfgCatalogo" autocomplete="off"><span class="hint">En WhatsApp Business: Herramientas del negocio, Catálogo, y copia el enlace. Si no lo cambias, uso el que se arma con tu número.</span></div>
+            <div class="campo"><label for="cfgHashtags">Hashtags fijos</label><input type="text" id="cfgHashtags" autocomplete="off"><span class="hint">Se agregan también hashtags del nombre del producto.</span></div>
+            <button type="button" class="link" id="btnRestablecer">Restablecer datos originales</button>
+        </details>
+
+        <details class="plegable" id="detHist">
+            <summary>Productos anteriores</summary>
+            <ul class="lista-hist" id="listaHist"></ul>
+            <button type="button" class="link" id="btnBorrarHist" style="margin-top:10px">Borrar historial</button>
+        </details>
+    </section>
+
+    <!-- ============ VISTA PREVIA ============ -->
+    <section class="panel out" aria-labelledby="t-post">
+        <h2 id="t-post">Tu publicación</h2>
+
+        <div class="foto-box">
+            <canvas id="lienzo" hidden role="img" aria-label="Vista previa de la foto con precio"></canvas>
+            <p class="foto-vacia" id="fotoVacia">Aquí verás la foto lista para pegar.</p>
+        </div>
+        <div class="foto-acc" id="fotoAcc" hidden>
+            <button type="button" class="link" id="btnDescargar">Descargar foto</button>
+            <button type="button" class="link" id="btnQuitar">Quitar foto</button>
+        </div>
+
+        <div class="tabs" role="group" aria-label="Red social">
+            <button type="button" class="tab" data-p="facebook" aria-pressed="true">Facebook</button>
+            <button type="button" class="tab" data-p="whatsapp" aria-pressed="false">WhatsApp</button>
+            <button type="button" class="tab" data-p="instagram" aria-pressed="false">Instagram</button>
+            <button type="button" class="tab" data-p="ads" aria-pressed="false">Meta Ads</button>
+        </div>
+
+        <div id="bloqueTexto">
+            <label for="resultado" class="etq" style="position:absolute;left:-9999px">Texto de la publicación</label>
+            <textarea id="resultado" spellcheck="false"></textarea>
+
+            <div class="meta">
+                <span id="contador"></span>
+                <button type="button" class="link" id="btnTitulo">Cambiar el título</button>
+            </div>
+            <label class="check" style="margin-top:6px"><input type="checkbox" id="negritas" checked> Negritas con letras especiales (Facebook e Instagram)</label>
+        </div>
+
+        <div id="panelAds" hidden>
+            <div class="meta" style="margin:0 0 10px">
+                <span class="hint" style="margin:0">Cada cuadro se pega en su campo del Administrador de anuncios.</span>
+                <button type="button" class="link" id="btnTituloAds">Cambiar la frase de inicio</button>
+            </div>
+
+            <div class="ad-campo">
+                <div class="ad-cab"><label for="adTexto">Texto principal</label><button type="button" class="link" data-copiar="adTexto" data-nombre="Texto principal">Copiar</button></div>
+                <textarea id="adTexto" rows="9" spellcheck="false"></textarea>
+                <span class="hint" id="cnt-adTexto"></span>
+            </div>
+            <div class="ad-campo">
+                <div class="ad-cab"><label for="adTitulo">Título</label><button type="button" class="link" data-copiar="adTitulo" data-nombre="Título">Copiar</button></div>
+                <input type="text" id="adTitulo" autocomplete="off">
+                <span class="hint" id="cnt-adTitulo"></span>
+            </div>
+            <div class="ad-campo">
+                <div class="ad-cab"><label for="adDesc">Descripción</label><button type="button" class="link" data-copiar="adDesc" data-nombre="Descripción">Copiar</button></div>
+                <input type="text" id="adDesc" autocomplete="off">
+                <span class="hint" id="cnt-adDesc"></span>
+            </div>
+            <div class="ad-campo">
+                <div class="ad-cab"><label for="adBienv">Mensaje de bienvenida de WhatsApp</label><button type="button" class="link" data-copiar="adBienv" data-nombre="Mensaje de bienvenida">Copiar</button></div>
+                <textarea id="adBienv" rows="2" spellcheck="false"></textarea>
+                <span class="hint">Es el mensaje que le aparece escrito al cliente al abrir el chat.</span>
+            </div>
+            <div class="ad-campo">
+                <div class="ad-cab"><label for="adCatalogo">Enlace del catálogo</label><button type="button" class="link" data-copiar="adCatalogo" data-nombre="Enlace del catálogo">Copiar</button></div>
+                <input type="text" id="adCatalogo" autocomplete="off">
+            </div>
+            <p class="ad-boton"><strong>Botón del anuncio:</strong> Enviar mensaje por WhatsApp</p>
+
+            <details class="plegable">
+                <summary>Cómo armar el anuncio en Meta</summary>
+                <ol class="pasos">
+                    <li>En el Administrador de anuncios crea una campaña con objetivo Ventas o Interacción y, como lugar de conversión, elige los mensajes de WhatsApp. Los nombres pueden cambiar un poco.</li>
+                    <li>Elige tu página de Facebook como identidad del anuncio y vincula tu número de WhatsApp Business.</li>
+                    <li>Sube la foto (la cuadrada funciona bien) y pega el texto principal, el título y la descripción.</li>
+                    <li>Deja el botón en "Enviar mensaje por WhatsApp" y pega el mensaje de bienvenida como mensaje predeterminado.</li>
+                    <li>El enlace del catálogo va dentro del texto, para que vean todos tus productos.</li>
+                </ol>
+            </details>
+        </div>
+
+        <div class="dirty" id="dirtyMsg" hidden>
+            Editaste el texto a mano, así que los cambios del formulario ya no lo reescriben.
+            <button type="button" class="link" id="btnRegen">Volver a generar</button>
+        </div>
+
+        <ul class="avisos" id="avisos" aria-live="polite"></ul>
+
+        <div class="actions">
+            <button type="button" class="btn" id="btnCopiar">Copiar texto</button>
+            <button type="button" class="btn sec" id="btnCopiarFoto">Copiar foto</button>
+            <button type="button" class="btn sec" id="btnShare">Compartir</button>
+        </div>
+    </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+/* ---------- Valores por defecto ---------- */
+const CFG_DEF = {
+    negocio: 'IMC',
+    whatsapp: '584149956831',
+    fbPage: 'https://www.facebook.com/ImcONLY/',
+    fbGroup: 'https://www.facebook.com/groups/imconline',
+    instagram: 'https://www.instagram.com/imc_oficial2.0/',
+    entregas: 'Entregas personales en El Tigrito y El Tigre.',
+    catalogoWeb: 'https://kervysj.github.io/catalogo-2026/',
+    catalogo: 'https://wa.me/c/584149956831',
+    hashtags: '#IMC #ElTigrito #ElTigre #Ventas #Anzoategui'
+};
+const PREFS_DEF = {
+    tipo: 'disponible', moneda: '$', venta: 'Venta al detal',
+    sello: true, formato: 'cuadrada', entregas: true, catalogoModo: 'web', redes: true, negritas: true
+};
+const CFG_CAMPOS = {
+    cfgNegocio: 'negocio', cfgWhatsapp: 'whatsapp', cfgPagina: 'fbPage',
+    cfgGrupo: 'fbGroup', cfgInstagram: 'instagram', cfgEntregas: 'entregas', cfgCatalogoWeb: 'catalogoWeb', cfgCatalogo: 'catalogo', cfgHashtags: 'hashtags'
+};
+
+const GANCHOS = {
+    disponible: [
+        '🔥 ¡NUEVO INGRESO DISPONIBLE EN {n}! 🔥',
+        '🆕 ¡Llegó a {n} lo que estabas esperando!',
+        '✨ ¡Recién llegado a {n}! ✨',
+        '👀 ¡Mira lo nuevo que tenemos en {n}!'
+    ],
+    oferta: [
+        '⚡ ¡OFERTA RELÁMPAGO EN {n}! ⚡\n¡Aprovecha este precio por tiempo limitado!',
+        '💥 ¡PRECIAZO EN {n}! 💥\nAprovéchalo antes de que se acabe.',
+        '🏷️ ¡PRECIO ESPECIAL EN {n}! 🏷️\nPor tiempo limitado, no lo dejes pasar.'
+    ],
+    ultimas: [
+        '🚨 ¡ATENCIÓN: ÚLTIMAS UNIDADES EN {n}! 🚨\n¡No te quedes sin el tuyo!',
+        '⏳ ¡Se nos están agotando en {n}!\nAsegura el tuyo hoy.',
+        '🚨 ¡Quedan pocas en {n}! 🚨\nEscríbenos antes de que se acaben.'
+    ],
+    reposicion: [
+        '🔁 ¡YA VOLVIÓ A STOCK EN {n}! 🔁\nLos que preguntaron, ya pueden encargar el suyo.',
+        '✅ ¡De nuevo disponible en {n}!\nSe agotó rápido, así que no lo pienses tanto.',
+        '📦 ¡Repusimos en {n}! 📦\nEscríbenos para apartar el tuyo.'
+    ]
+};
+const SELLO = {
+    disponible: { color: '#1560d4', etiqueta: 'NUEVO' },
+    oferta:     { color: '#d92d20', etiqueta: 'OFERTA' },
+    ultimas:    { color: '#c2410c', etiqueta: 'ÚLTIMAS' },
+    reposicion: { color: '#0f7b5f', etiqueta: 'DE NUEVO' }
+};
+const NOMBRE_PLAT = { facebook: 'Facebook', whatsapp: 'WhatsApp', instagram: 'Instagram', ads: 'Meta Ads' };
+const PALABRAS_VACIAS = new Set(['para', 'con', 'como', 'este', 'esta', 'tipo', 'unidad', 'unidades', 'nuevo', 'nueva', 'pack', 'combo', 'buen']);
+
+/* ---------- Estado ---------- */
+let cfg = { ...CFG_DEF };
+let prefs = { ...PREFS_DEF };
+let hist = [];
+let plataforma = 'facebook';
+let sucio = false;
+let variante = 0;
+let imgEl = null;
+let urlFoto = null;
+let tDibujo = null;
+let tAviso = null;
+
+/* ---------- Almacenamiento local ---------- */
+function leer(clave, def) {
+    try {
+        const v = localStorage.getItem(clave);
+        if (v) return { ...def, ...JSON.parse(v) };
+    } catch (e) { /* sin almacenamiento */ }
+    return { ...def };
+}
+function guardar(clave, valor) {
+    try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* ignorar */ }
+}
+function leerHist() {
+    try {
+        const v = JSON.parse(localStorage.getItem('imc_hist') || '[]');
+        return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+}
+
+/* ---------- Utilidades ---------- */
+function datos() {
+    return {
+        tipo: document.querySelector('input[name="tipo"]:checked').value,
+        nombre: $('nombre').value.trim(),
+        moneda: $('moneda').value,
+        precio: $('precio').value.trim(),
+        precioAnt: $('precioAnt').value.trim(),
+        unidades: $('unidades').value.trim(),
+        venta: $('venta').value,
+        detalles: $('detalles').value.trim(),
+        gancho: $('gancho').value.trim(),
+        entregas: $('chkEntregas').checked,
+        catalogoModo: $('catalogoModo').value,
+        redes: $('chkRedes').checked,
+        enlaceProd: $('enlaceProd').value.trim()
+    };
+}
+function digitos(s) { return String(s || '').replace(/\D/g, ''); }
+function telVisible(s) {
+    const d = digitos(s);
+    if (d.startsWith('58') && d.length === 12) return '0' + d.slice(2, 5) + '-' + d.slice(5);
+    return d ? '+' + d : '';
+}
+function num(s) {
+    const n = parseFloat(String(s).replace(/[^\d.,]/g, '').replace(',', '.'));
+    return isNaN(n) ? null : n;
+}
+function fmtPrecio(s, moneda) {
+    const limpio = String(s || '').replace(/bs\.?|\$|\s/gi, '');
+    if (!limpio) return '';
+    return moneda === 'Bs' ? 'Bs. ' + limpio : '$' + limpio;
+}
+/* Convierte a letras en negrita de Unicode (Facebook e Instagram no aceptan *asteriscos*) */
+function negrita(txt) {
+    return [...txt.normalize('NFD')].map(ch => {
+        const c = ch.codePointAt(0);
+        if (c >= 65 && c <= 90) return String.fromCodePoint(0x1D5D4 + (c - 65));
+        if (c >= 97 && c <= 122) return String.fromCodePoint(0x1D5EE + (c - 97));
+        if (c >= 48 && c <= 57) return String.fromCodePoint(0x1D7EC + (c - 48));
+        return ch;
+    }).join('');
+}
+function resaltar(txt, p) {
+    if (p === 'whatsapp') return '*' + txt + '*';
+    return $('negritas').checked ? negrita(txt) : txt;
+}
+function hashtagsAuto(nombre) {
+    const sin = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const palabras = sin.match(/[a-z0-9]{4,}/g) || [];
+    const vistos = [];
+    for (const p of palabras) {
+        if (!PALABRAS_VACIAS.has(p) && !vistos.includes(p)) vistos.push(p);
+        if (vistos.length === 2) break;
+    }
+    return vistos.map(p => '#' + p[0].toUpperCase() + p.slice(1));
+}
+function etiquetas(nombre, max) {
+    const fijos = (cfg.hashtags || '').split(/\s+/).filter(Boolean).map(t => t.startsWith('#') ? t : '#' + t);
+    const vistos = new Set();
+    const res = [];
+    for (const t of [...fijos, ...hashtagsAuto(nombre)]) {
+        const k = t.toLowerCase();
+        if (!vistos.has(k)) { vistos.add(k); res.push(t); }
+    }
+    return res.slice(0, max);
+}
+function cabecera(tipo) {
+    const lista = GANCHOS[tipo];
+    return lista[variante % lista.length].replace(/\{n\}/g, cfg.negocio || 'IMC');
+}
+function sinProtocolo(url) {
+    return String(url || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/+$/, '');
+}
+function aviso(msg, tipo = 'ok') {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + tipo;
+    clearTimeout(tAviso);
+    tAviso = setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+/* ---------- Catálogo: una sola línea gancho ---------- */
+const CTA_CATALOGO = [
+    '🛍️ Mira más productos y precios en nuestro catálogo. Guárdalo en tu celular 👇',
+    '👀 ¿Buscas otra cosa? Explora todo el catálogo aquí 👇',
+    '📲 Ten todo {n} en tu celular: abre el catálogo y guárdalo 👇'
+];
+const CTA_PRODUCTO = [
+    '👉 Míralo en el catálogo, con más productos y precios 👇',
+    '👀 Ve este producto y todo lo demás aquí 👇',
+    '📲 Toca para verlo en el catálogo y guárdalo en tu celular 👇'
+];
+function catalogos(d) {
+    return {
+        web: (d.catalogoModo === 'web' || d.catalogoModo === 'ambos') ? cfg.catalogoWeb : '',
+        wa: (d.catalogoModo === 'wa' || d.catalogoModo === 'ambos') ? cfg.catalogo : ''
+    };
+}
+function lineasCatalogo(p, d) {
+    const c = catalogos(d);
+    const n = cfg.negocio || 'IMC';
+    const pick = arr => arr[variante % arr.length].replace(/\{n\}/g, n);
+    const L = [];
+    const enlace = d.enlaceProd || c.web;
+    if (enlace) {
+        if (p === 'instagram') L.push(`🛍️ Catálogo: ${sinProtocolo(enlace)}`, '');
+        else if (p === 'whatsapp') L.push(d.enlaceProd ? '👉 Míralo aquí:' : '🛍️ Catálogo completo:', enlace, '');
+        else L.push(pick(d.enlaceProd ? CTA_PRODUCTO : CTA_CATALOGO), enlace, '');
+    }
+    if (c.wa) {
+        if (p === 'instagram') L.push(`🛍️ Catálogo en WhatsApp: ${sinProtocolo(c.wa)}`, '');
+        else L.push('🛍️ Catálogo en WhatsApp:', c.wa, '');
+    }
+    return L;
+}
+
+/* ---------- Generar el texto ---------- */
+function construirTexto(p) {
+    const d = datos();
+    const B = t => resaltar(t, p);
+    const nombre = d.nombre || 'Producto disponible';
+    const precio = fmtPrecio(d.precio, d.moneda);
+    const ant = fmtPrecio(d.precioAnt, d.moneda);
+    const n1 = num(d.precio), n0 = num(d.precioAnt);
+    const pct = (d.tipo === 'oferta' && n0 && n1 && n0 > n1) ? Math.round((n0 - n1) / n0 * 100) : 0;
+
+    const L = [cabecera(d.tipo), '', `✨ ${B(nombre)}`];
+    L.push(precio ? `💰 Precio: ${B(precio)}` : '💰 Consulta el precio por WhatsApp');
+    if (d.tipo === 'oferta' && ant) L.push(pct ? `🏷️ Antes ${ant}, ahorras ${pct}%` : `🏷️ Antes ${ant}`);
+    const u = parseInt(d.unidades, 10);
+    if (d.tipo === 'ultimas' && u > 0) L.push(u === 1 ? '⏳ Queda solo 1 unidad' : `⏳ Quedan solo ${u} unidades`);
+    L.push(`🛒 ${d.venta}`, '');
+
+    let cuerpo = [];
+    if (d.gancho) cuerpo.push(`📝 ${d.gancho}`);
+    if (d.detalles) cuerpo.push(`📌 Detalles: ${d.detalles}`);
+    if (!d.gancho && !d.detalles) cuerpo.push('📝 ¡Pide el tuyo antes de que se agoten!');
+    let bloque = cuerpo.join('\n\n');
+    if (d.entregas && cfg.entregas) bloque += '\n' + `🚚 ${cfg.entregas}`;
+    L.push(bloque, '');
+
+    const wa = digitos(cfg.whatsapp);
+    const tel = telVisible(cfg.whatsapp);
+
+    if (p === 'facebook') {
+        if (wa) {
+            const q = d.nombre ? '?text=' + encodeURIComponent('Hola, me interesa: ' + d.nombre) : '';
+            L.push('📲 Escríbenos por WhatsApp para encargar:', `https://wa.me/${wa}${q}`, '');
+        }
+        L.push(...lineasCatalogo(p, d));
+        if (d.redes && cfg.fbPage) L.push('🌐 Síguenos en nuestra página:', cfg.fbPage, '');
+        if (d.redes && cfg.fbGroup) L.push('🎁 Únete a nuestro grupo exclusivo para ver más ofertas y novedades:', cfg.fbGroup, '');
+        if (d.redes && cfg.instagram) L.push('📸 Instagram:', cfg.instagram, '');
+        L.push(etiquetas(d.nombre, 8).join(' '));
+    } else if (p === 'whatsapp') {
+        if (tel) L.push(`📲 Pedidos: ${tel}`, '');
+        L.push(...lineasCatalogo(p, d));
+        if (d.redes && cfg.fbGroup) L.push('🎁 Más ofertas en nuestro grupo:', cfg.fbGroup, '');
+        if (d.redes && cfg.fbPage) L.push('🌐 Nuestra página:', cfg.fbPage, '');
+    } else {
+        if (tel) L.push(`📲 Pedidos por WhatsApp: ${tel}`, '');
+        L.push(...lineasCatalogo(p, d));
+        if (d.redes && cfg.fbPage) L.push(`🌐 También en Facebook: ${sinProtocolo(cfg.fbPage)}`, '');
+        L.push(etiquetas(d.nombre, 12).join(' '));
+    }
+    return L.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function regenerar(forzar) {
+    if (sucio && !forzar) return;
+    if (plataforma === 'ads') {
+        const a = construirAds();
+        $('adTexto').value = a.texto;
+        $('adTitulo').value = a.titulo;
+        $('adDesc').value = a.desc;
+        $('adBienv').value = a.bienv;
+        $('adCatalogo').value = a.catalogo;
+    } else {
+        $('resultado').value = construirTexto(plataforma);
+    }
+    sucio = false;
+    $('dirtyMsg').hidden = true;
+    actualizarMeta();
+    actualizarAvisos();
+}
+function actualizarMeta() {
+    if (plataforma === 'ads') { contarAds(); return; }
+    const n = $('resultado').value.length;
+    const c = $('contador');
+    const ig = plataforma === 'instagram';
+    c.textContent = ig ? `${n.toLocaleString('es')} de 2.200 caracteres` : `${n.toLocaleString('es')} caracteres`;
+    c.classList.toggle('excede', ig && n > 2200);
+}
+function actualizarAvisos() {
+    const d = datos();
+    const items = [];
+    if (!d.nombre) items.push({ t: 'Falta el nombre del producto.' });
+    if (!d.precio) items.push({ t: 'Falta el precio.' });
+    if (!imgEl) items.push({ t: 'Falta la foto.' });
+    if (d.tipo === 'oferta' && d.precio && !d.precioAnt) items.push({ t: 'Si pones el precio anterior, el anuncio muestra cuánto se ahorra.', c: 'tip' });
+    if (!digitos(cfg.whatsapp)) items.push({ t: 'Falta tu número de WhatsApp en "Mis datos y enlaces".' });
+    const quiereWeb = d.catalogoModo === 'web' || d.catalogoModo === 'ambos';
+    const quiereWa = d.catalogoModo === 'wa' || d.catalogoModo === 'ambos';
+    if (quiereWeb && !cfg.catalogoWeb) items.push({ t: 'Falta el enlace del catálogo web en "Mis datos y enlaces".' });
+    if (quiereWa && !cfg.catalogo) items.push({ t: 'Falta el enlace del catálogo de WhatsApp en "Mis datos y enlaces".' });
+    if (!items.length) items.push({ t: 'Todo listo. Copia el texto y la foto y pégalos.', c: 'ok' });
+    if (quiereWeb && !d.enlaceProd) items.push({ t: 'Tip: pega el enlace directo del producto y el cliente llega justo a ese producto.', c: 'tip' });
+    if (plataforma === 'ads') items.push({ t: 'En el anuncio, deja el botón en "Enviar mensaje por WhatsApp".', c: 'tip' });
+    const ul = $('avisos');
+    ul.textContent = '';
+    items.forEach(it => {
+        const li = document.createElement('li');
+        li.textContent = it.t;
+        if (it.c) li.className = it.c;
+        ul.appendChild(li);
+    });
+}
+function actualizarCondicionales() {
+    const tipo = datos().tipo;
+    $('campoAnt').hidden = tipo !== 'oferta';
+    $('campoUnid').hidden = tipo !== 'ultimas';
+}
+
+/* ---------- Meta Ads ---------- */
+const ADS_GANCHOS = {
+    disponible: [
+        o => `🔥 Nuevo en ${o.neg}: ${o.prod}${o.precio ? ' a ' + o.precio : ''}.`,
+        o => `🆕 Ya llegó ${o.prod} a ${o.neg}${o.precio ? '. Precio: ' + o.precio : ''}.`,
+        o => `✨ ${o.prod}, recién llegado${o.precio ? ' por ' + o.precio : ''}.`
+    ],
+    oferta: [
+        o => `⚡ Oferta: ${o.prod}${o.precio ? ' a ' + o.precio : ''}${o.ahorro ? ' (ahorras ' + o.ahorro + '%)' : ''}. Por tiempo limitado.`,
+        o => `💥 Precio especial en ${o.prod}${o.precio ? ': ' + o.precio : ''}. Aprovecha antes de que termine.`,
+        o => `🏷️ ${o.prod} en oferta${o.precio ? ' a ' + o.precio : ''}. Por tiempo limitado.`
+    ],
+    ultimas: [
+        o => `🚨 Últimas unidades de ${o.prod}${o.precio ? ': ' + o.precio : ''}.${o.u > 0 ? ' Quedan solo ' + o.u + '.' : ''}`,
+        o => `⏳ Se están agotando: ${o.prod}${o.precio ? ' a ' + o.precio : ''}.${o.u > 0 ? ' Quedan solo ' + o.u + '.' : ''}`,
+        o => `🚨 Quedan pocas de ${o.prod}${o.precio ? ' a ' + o.precio : ''}.${o.u > 0 ? ' Solo ' + o.u + '.' : ''} Asegura la tuya.`
+    ],
+    reposicion: [
+        o => `🔁 Volvió ${o.prod}${o.precio ? ' a ' + o.precio : ''}. Escríbenos y aparta el tuyo.`,
+        o => `✅ ${o.prod} ya está disponible otra vez${o.precio ? ': ' + o.precio : ''}.`,
+        o => `📦 Repusimos ${o.prod}${o.precio ? ' a ' + o.precio : ''}. Pídelo por WhatsApp.`
+    ]
+};
+const ADS_DESC = {
+    disponible: 'Pídelo por WhatsApp',
+    oferta: 'Precio por tiempo limitado',
+    ultimas: 'Quedan pocas unidades',
+    reposicion: 'Aparta el tuyo hoy'
+};
+const LIMITES_ADS = { adTitulo: 40, adDesc: 30 };
+
+function limitar(t, max) {
+    return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t;
+}
+function construirAds() {
+    const d = datos();
+    const prod = d.nombre || 'este producto';
+    const precio = fmtPrecio(d.precio, d.moneda);
+    const n1 = num(d.precio), n0 = num(d.precioAnt);
+    const ahorro = (d.tipo === 'oferta' && n0 && n1 && n0 > n1) ? Math.round((n0 - n1) / n0 * 100) : 0;
+    const u = parseInt(d.unidades, 10) || 0;
+    const lista = ADS_GANCHOS[d.tipo];
+    const gancho = lista[variante % lista.length]({ neg: cfg.negocio || 'IMC', prod, precio, ahorro, u });
+
+    const L = [gancho, ''];
+    if (d.gancho) L.push(d.gancho);
+    if (d.detalles) L.push(`📌 ${d.detalles}`);
+    L.push(`🛒 ${d.venta}`);
+    if (d.entregas && cfg.entregas) L.push(`🚚 ${cfg.entregas}`);
+    L.push('', '👉 Toca "Enviar mensaje" y pídelo por WhatsApp.');
+    const cat = catalogos(d);
+    const enlaceCat = d.enlaceProd || cat.web || cat.wa;
+    if (enlaceCat) L.push(`🛍️ ${d.enlaceProd ? 'Míralo en el catálogo' : 'Mira más productos'}: ${enlaceCat}`);
+
+    const base = {
+        disponible: prod,
+        oferta: 'Oferta: ' + prod,
+        ultimas: 'Últimas unidades: ' + prod,
+        reposicion: prod + ' otra vez disponible'
+    }[d.tipo];
+    let titulo = precio ? `${base} - ${precio}` : base;
+    if (titulo.length > LIMITES_ADS.adTitulo) titulo = limitar(base, LIMITES_ADS.adTitulo);
+
+    return {
+        texto: L.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+        titulo,
+        desc: ADS_DESC[d.tipo],
+        bienv: d.nombre ? `Hola, vi el anuncio de ${d.nombre}. ¿Sigue disponible?` : 'Hola, vi su anuncio. ¿Me dan más información?',
+        catalogo: enlaceCat || ''
+    };
+}
+function contarAds() {
+    $('cnt-adTexto').textContent = `${$('adTexto').value.length} caracteres. Los primeros 125 se ven antes de "Ver más".`;
+    Object.entries(LIMITES_ADS).forEach(([id, max]) => {
+        const n = $(id).value.length;
+        const c = $('cnt-' + id);
+        c.textContent = `${n} de ${max} caracteres`;
+        c.classList.toggle('excede', n > max);
+    });
+}
+function mostrarPlataforma() {
+    const ads = plataforma === 'ads';
+    $('bloqueTexto').hidden = ads;
+    $('panelAds').hidden = !ads;
+    $('btnCopiar').textContent = ads ? 'Copiar texto principal' : 'Copiar texto';
+    $('btnShare').hidden = ads || !navigator.share;
+}
+
+/* ---------- Foto con sello ---------- */
+function programarDibujo() {
+    clearTimeout(tDibujo);
+    tDibujo = setTimeout(dibujarFoto, 120);
+}
+function ajustar(ctx, txt, peso, tam, max) {
+    let s = tam;
+    do {
+        ctx.font = `${peso} ${s}px Arial, Helvetica, sans-serif`;
+        if (ctx.measureText(txt).width <= max) break;
+        s -= 2;
+    } while (s > 12);
+    return s;
+}
+function dibujarSello(ctx, W, H) {
+    const d = datos();
+    const u = Math.min(W, H) / 1080;
+    const est = SELLO[d.tipo];
+
+    // Franja inferior con nombre y contacto
+    const bh = 200 * u;
+    const g = ctx.createLinearGradient(0, H - bh, 0, H);
+    g.addColorStop(0, 'rgba(10,20,40,0)');
+    g.addColorStop(1, 'rgba(10,20,40,.9)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, H - bh, W, bh);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    if (d.nombre) {
+        ctx.fillStyle = '#fff';
+        ajustar(ctx, d.nombre, 'bold', 56 * u, W - 80 * u);
+        ctx.fillText(d.nombre, 40 * u, H - 84 * u);
+    }
+    const tel = telVisible(cfg.whatsapp);
+    if (tel) {
+        ctx.fillStyle = '#cfe0ff';
+        ajustar(ctx, `WhatsApp ${tel}`, 'bold', 36 * u, W - 80 * u);
+        ctx.fillText(`WhatsApp ${tel}`, 40 * u, H - 34 * u);
+    }
+
+    // Círculo con el precio
+    const precio = fmtPrecio(d.precio, d.moneda);
+    if (!precio) return;
+    const r = 132 * u;
+    const cx = W - 40 * u - r;
+    const cy = 40 * u + r;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.4)';
+    ctx.shadowBlur = 20 * u;
+    ctx.shadowOffsetY = 6 * u;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = est.color;
+    ctx.fill();
+    ctx.restore();
+    ctx.lineWidth = 8 * u;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff';
+    ajustar(ctx, est.etiqueta, 'bold', 30 * u, r * 1.4);
+    ctx.fillText(est.etiqueta, cx, cy - 50 * u);
+    ajustar(ctx, precio, 'bold', 96 * u, r * 1.6);
+    ctx.fillText(precio, cx, cy + 34 * u);
+
+    const ant = fmtPrecio(d.precioAnt, d.moneda);
+    if (d.tipo === 'oferta' && ant) {
+        const txt = `antes ${ant}`;
+        ajustar(ctx, txt, 'bold', 28 * u, r * 1.3);
+        const ancho = ctx.measureText(txt).width;
+        const y = cy + 82 * u;
+        ctx.fillText(txt, cx, y);
+        ctx.fillRect(cx - ancho / 2, y - 9 * u, ancho, 3 * u);
+    }
+}
+function dibujarFoto() {
+    const cv = $('lienzo');
+    if (!imgEl) {
+        cv.hidden = true;
+        $('fotoVacia').hidden = false;
+        $('fotoAcc').hidden = true;
+        return;
+    }
+    const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
+    let W, H;
+    if ($('formato').value === 'cuadrada') {
+        W = H = 1080;
+    } else {
+        const s = Math.min(1, 1350 / Math.max(iw, ih));
+        W = Math.round(iw * s);
+        H = Math.round(ih * s);
+    }
+    cv.width = W;
+    cv.height = H;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
+    const esc = Math.max(W / iw, H / ih);
+    const dw = iw * esc, dh = ih * esc;
+    ctx.drawImage(imgEl, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    if ($('sello').checked) dibujarSello(ctx, W, H);
+    cv.hidden = false;
+    $('fotoVacia').hidden = true;
+    $('fotoAcc').hidden = false;
+}
+function cargarArchivo(file) {
+    if (!file || !file.type.startsWith('image/')) {
+        aviso('Ese archivo no es una imagen.', 'error');
+        return;
+    }
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => {
+        if (urlFoto) URL.revokeObjectURL(urlFoto);
+        urlFoto = url;
+        imgEl = im;
+        $('dropTxt').textContent = 'Foto lista. Toca para cambiarla.';
+        dibujarFoto();
+        actualizarAvisos();
+    };
+    im.onerror = () => {
+        URL.revokeObjectURL(url);
+        aviso('No pude leer esa foto. Prueba con otra en JPG o PNG.', 'error');
+    };
+    im.src = url;
+}
+function quitarFoto() {
+    if (urlFoto) URL.revokeObjectURL(urlFoto);
+    urlFoto = null;
+    imgEl = null;
+    $('archivo').value = '';
+    $('dropTxt').textContent = 'Toca para elegir una foto';
+    dibujarFoto();
+    actualizarAvisos();
+}
+function blobFoto() {
+    clearTimeout(tDibujo);
+    dibujarFoto();
+    return new Promise(res => $('lienzo').toBlob(b => res(b), 'image/png'));
+}
+function descargarBlob(blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'imc-' + (datos().nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'producto') + '.png';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ---------- Copiar y compartir ---------- */
+function copiarFallback(t) {
+    const ta = document.createElement('textarea');
+    ta.value = t;
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+}
+async function copiarSeguro(t) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(t);
+            return true;
+        }
+    } catch (e) { /* probar el método alterno */ }
+    return copiarFallback(t);
+}
+async function copiarTexto() {
+    const ads = plataforma === 'ads';
+    const t = ads ? $('adTexto').value : $('resultado').value;
+    if (!t.trim()) { aviso('No hay texto para copiar.', 'error'); return; }
+    if (await copiarSeguro(t)) {
+        aviso(ads ? 'Texto principal copiado. Pégalo en el Administrador de anuncios.' : `Texto copiado. Pégalo en ${NOMBRE_PLAT[plataforma]}.`);
+        guardarHistorial();
+    } else {
+        aviso('No pude copiar. Selecciona el texto y cópialo a mano.', 'error');
+    }
+}
+async function copiarFoto() {
+    if (!imgEl) { aviso('Primero sube una foto.', 'error'); return; }
+    const blob = await blobFoto();
+    try {
+        if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            aviso('Foto copiada. Pégala en la publicación.');
+            return;
+        }
+    } catch (e) { /* bajar la foto en su lugar */ }
+    descargarBlob(blob);
+    aviso('Tu navegador no deja copiar fotos. La descargué para que la subas.', 'aviso');
+}
+async function compartir() {
+    const t = $('resultado').value;
+    await copiarSeguro(t);
+    if (!navigator.share) {
+        aviso('Compartir no está disponible aquí. Usa Copiar texto y Copiar foto.', 'aviso');
+        return;
+    }
+    const data = { text: t };
+    if (imgEl) {
+        const blob = await blobFoto();
+        const f = new File([blob], 'imc-producto.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) data.files = [f];
+    }
+    try {
+        await navigator.share(data);
+        guardarHistorial();
+    } catch (e) {
+        if (e.name !== 'AbortError') aviso('No se pudo compartir.', 'error');
+    }
+}
+async function copiarPrompt() {
+    const d = datos();
+    const p = `Eres el community manager de "${cfg.negocio}", una tienda con estas zonas de entrega: ${cfg.entregas} ` +
+        `Escribe UN gancho de venta para Facebook: máximo 2 frases cortas, tono cercano y venezolano, con 1 o 2 emojis, sin hashtags ni precios. ` +
+        `Producto: ${d.nombre || '(describe el producto)'}.` +
+        (d.detalles ? ` Detalles: ${d.detalles}.` : '') +
+        ' Devuelve solo el texto, sin comillas.';
+    aviso((await copiarSeguro(p)) ? 'Instrucción copiada. Pégala en tu IA y trae la frase aquí.' : 'No pude copiar la instrucción.', 'ok');
+}
+
+/* ---------- Historial ---------- */
+function guardarHistorial() {
+    const d = datos();
+    if (!d.nombre) return;
+    hist = hist.filter(h => !(h.nombre === d.nombre && h.precio === d.precio));
+    hist.unshift({ ...d, ts: Date.now() });
+    hist = hist.slice(0, 10);
+    guardar('imc_hist', hist);
+    pintarHistorial();
+}
+function pintarHistorial() {
+    const ul = $('listaHist');
+    ul.textContent = '';
+    $('btnBorrarHist').hidden = !hist.length;
+    if (!hist.length) {
+        const li = document.createElement('li');
+        li.className = 'vacio';
+        li.textContent = 'Aquí aparecen los productos que copies, para reusarlos.';
+        ul.appendChild(li);
+        return;
+    }
+    hist.forEach((h, i) => {
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hist-item';
+        const p = fmtPrecio(h.precio, h.moneda);
+        b.textContent = p ? `${h.nombre} - ${p}` : h.nombre;
+        b.addEventListener('click', () => cargarDatos(h));
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'hist-x';
+        x.setAttribute('aria-label', 'Quitar ' + h.nombre + ' del historial');
+        x.textContent = '×';
+        x.addEventListener('click', () => {
+            hist.splice(i, 1);
+            guardar('imc_hist', hist);
+            pintarHistorial();
+        });
+        li.append(b, x);
+        ul.appendChild(li);
+    });
+}
+function cargarDatos(h) {
+    const r = document.querySelector(`input[name="tipo"][value="${h.tipo}"]`);
+    if (r) r.checked = true;
+    $('nombre').value = h.nombre || '';
+    $('moneda').value = h.moneda || '$';
+    $('precio').value = h.precio || '';
+    $('precioAnt').value = h.precioAnt || '';
+    $('unidades').value = h.unidades || '';
+    $('venta').value = h.venta || 'Venta al detal';
+    $('detalles').value = h.detalles || '';
+    $('gancho').value = h.gancho || '';
+    $('chkEntregas').checked = h.entregas !== false;
+    $('catalogoModo').value = h.catalogoModo || 'web';
+    $('chkRedes').checked = h.redes !== false;
+    $('enlaceProd').value = h.enlaceProd || '';
+    actualizarCondicionales();
+    guardarPrefs();
+    regenerar(true);
+    programarDibujo();
+    aviso('Datos cargados. Sube la foto del producto.', 'ok');
+}
+function nuevoProducto() {
+    ['nombre', 'precio', 'precioAnt', 'unidades', 'detalles', 'gancho', 'enlaceProd'].forEach(id => { $(id).value = ''; });
+    quitarFoto();
+    variante = Math.floor(Math.random() * 12);
+    regenerar(true);
+    $('nombre').focus();
+}
+
+/* ---------- Ajustes guardados ---------- */
+function aplicarCfg() {
+    Object.entries(CFG_CAMPOS).forEach(([id, k]) => { $(id).value = cfg[k] || ''; });
+}
+function aplicarPrefs() {
+    const r = document.querySelector(`input[name="tipo"][value="${prefs.tipo}"]`);
+    if (r) r.checked = true;
+    $('moneda').value = prefs.moneda;
+    $('venta').value = prefs.venta;
+    $('sello').checked = !!prefs.sello;
+    $('formato').value = prefs.formato;
+    $('chkEntregas').checked = !!prefs.entregas;
+    $('catalogoModo').value = prefs.catalogoModo;
+    $('chkRedes').checked = prefs.redes !== false;
+    $('negritas').checked = !!prefs.negritas;
+}
+function guardarPrefs() {
+    const d = datos();
+    prefs = {
+        tipo: d.tipo, moneda: d.moneda, venta: d.venta, sello: $('sello').checked,
+        formato: $('formato').value, entregas: d.entregas, catalogoModo: d.catalogoModo, redes: d.redes, negritas: $('negritas').checked
+    };
+    guardar('imc_prefs', prefs);
+}
+
+/* ---------- Eventos ---------- */
+function alCambiarForm() {
+    actualizarCondicionales();
+    guardarPrefs();
+    regenerar(false);
+    actualizarAvisos();
+    programarDibujo();
+}
+$('panelForm').addEventListener('input', alCambiarForm);
+$('panelForm').addEventListener('change', alCambiarForm);
+$('negritas').addEventListener('change', () => { guardarPrefs(); regenerar(false); });
+
+Object.entries(CFG_CAMPOS).forEach(([id, k]) => {
+    $(id).addEventListener('input', () => {
+        cfg[k] = $(id).value.trim();
+        guardar('imc_cfg', cfg);
+    });
+});
+$('btnRestablecer').addEventListener('click', () => {
+    cfg = { ...CFG_DEF };
+    guardar('imc_cfg', cfg);
+    aplicarCfg();
+    regenerar(false);
+    programarDibujo();
+    aviso('Datos originales restablecidos.');
+});
+
+document.querySelectorAll('.tab').forEach(b => {
+    b.addEventListener('click', () => {
+        plataforma = b.dataset.p;
+        document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        mostrarPlataforma();
+        regenerar(true);
+    });
+});
+$('resultado').addEventListener('input', () => {
+    sucio = true;
+    $('dirtyMsg').hidden = false;
+    actualizarMeta();
+});
+$('btnRegen').addEventListener('click', () => regenerar(true));
+$('btnTitulo').addEventListener('click', () => { variante++; regenerar(true); });
+$('btnTituloAds').addEventListener('click', () => { variante++; regenerar(true); });
+$('panelAds').addEventListener('input', () => {
+    sucio = true;
+    $('dirtyMsg').hidden = false;
+    contarAds();
+});
+document.querySelectorAll('[data-copiar]').forEach(b => {
+    b.addEventListener('click', async () => {
+        const el = $(b.dataset.copiar);
+        if (!el.value.trim()) { aviso('Ese campo está vacío.', 'error'); return; }
+        if (await copiarSeguro(el.value)) aviso(`${b.dataset.nombre} copiado.`);
+        else aviso('No pude copiar. Selecciona el texto y cópialo a mano.', 'error');
+    });
+});
+
+$('archivo').addEventListener('change', e => cargarArchivo(e.target.files[0]));
+const drop = $('drop');
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('encima'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('encima'); }));
+drop.addEventListener('drop', e => cargarArchivo(e.dataTransfer.files[0]));
+document.addEventListener('paste', e => {
+    const f = e.clipboardData && e.clipboardData.files && e.clipboardData.files[0];
+    if (f && f.type.startsWith('image/')) { e.preventDefault(); cargarArchivo(f); }
+});
+$('btnQuitar').addEventListener('click', quitarFoto);
+$('btnDescargar').addEventListener('click', async () => { if (imgEl) descargarBlob(await blobFoto()); });
+
+$('btnCopiar').addEventListener('click', copiarTexto);
+$('btnCopiarFoto').addEventListener('click', copiarFoto);
+$('btnShare').addEventListener('click', compartir);
+$('btnPrompt').addEventListener('click', copiarPrompt);
+$('btnNuevo').addEventListener('click', nuevoProducto);
+$('btnBorrarHist').addEventListener('click', () => { hist = []; guardar('imc_hist', hist); pintarHistorial(); });
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); copiarTexto(); }
+});
+
+/* ---------- Inicio ---------- */
+cfg = leer('imc_cfg', CFG_DEF);
+prefs = leer('imc_prefs', PREFS_DEF);
+hist = leerHist();
+variante = Math.floor(Math.random() * 12);
+mostrarPlataforma();
+aplicarCfg();
+aplicarPrefs();
+actualizarCondicionales();
+pintarHistorial();
+regenerar(true);
+dibujarFoto();
+})();
+</script>
+</body>
+</html>
